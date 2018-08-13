@@ -39,8 +39,8 @@ void init( void )
     // sets the initial state for the game
     g_eGameState = S_SPLASHSCREEN;
 
-    g_sChar.m_cLocation.X = g_Console.getConsoleSize().X / 2;
-    g_sChar.m_cLocation.Y = g_Console.getConsoleSize().Y / 2;
+    g_sChar.m_cLocation.X = 0;
+    g_sChar.m_cLocation.Y = 2;
     g_sChar.m_bActive = true;
     // sets the width, height and the font name to use in the console
     g_Console.setConsoleFont(0, 16, L"Consolas");
@@ -224,37 +224,42 @@ void renderGame()
 
 void renderMap()
 {
+	COORD c;
 	char createwall[11][41];
 	string line;
-	ifstream myfile("example.txt");
+	ifstream myfile("maze.txt");
+	int i = 0;
+	int pos = 0;
 	if (myfile.is_open())
 	{
 		while (getline(myfile, line))
 		{
-			for (int j = 0; j < 11; j++)
+			for (int j = 0; j < 41; j++)
 			{
-				for (int i = 0; i < 41; i++)
-				{
-					createwall[j][i] = line[i];
-					cout<<
-				}
+				createwall[i][j] = line[j];
 			}
+			i++;
 		}
 		myfile.close();
 	}
-	// Set up sample colours, and output shadings
-	const WORD colors[] = {
-		0x1A, 0x2B, 0x3C, 0x4D, 0x5E, 0x6F,
-		0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6
-	};
-
-	COORD c;
-	for (int i = 0; i < 12; ++i)
+	for (int k = 0; k < 11; k++)
 	{
-		c.X = 5 * i;
-		c.Y = i + 1;
-		colour(colors[i]);
-		g_Console.writeToBuffer(c, " °±²Û", colors[i]);
+		int position = 0;
+		c.Y = 1 + pos;
+		for (int j = 0; j < 41; j++)
+		{
+			c.X = position;
+			if (createwall[k][j] == ' ')
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0x0);
+			}
+			else 
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
+			}
+			position++;
+		}
+		pos++;
 	}
 }
 
