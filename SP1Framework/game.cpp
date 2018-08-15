@@ -15,9 +15,19 @@ double  g_dElapsedTime;
 double  g_dDeltaTime;
 bool    g_abKeyPressed[K_COUNT];
 //setting of maze
-void maze1();
-void maze1E();
-void renderMap1E();
+bool activatetrap = false;
+bool eventactivate = false;
+bool opentrap = false;
+int puzzlelevel = 0;
+void renderMapOpenTrap1();
+bool clearevent1 = false;
+void renderMapEventClear1();
+void renderMapOpenTrap2();
+bool clearevent2 = false;
+void renderMapEventClear2();
+void renderMapOpenTrap3();
+bool clearevent3 = false;
+void renderMapEventClear3();
 // Game specific variables here
 SGameChar   g_sChar;
 EGAMESTATES g_eGameState = S_SPLASHSCREEN;
@@ -83,6 +93,7 @@ void getInput( void )
     g_abKeyPressed[K_RIGHT]  = isKeyPressed(VK_RIGHT);
     g_abKeyPressed[K_SPACE]  = isKeyPressed(VK_SPACE);
     g_abKeyPressed[K_ESCAPE] = isKeyPressed(VK_ESCAPE);
+	g_abKeyPressed[K_SPECIAL] = isKeyPressed(VK_KEY_B);
 }
 
 //--------------------------------------------------------------
@@ -179,6 +190,13 @@ char scanMap1E(char createwall[20][70])
 		{
 			for (int j = 0; j < 70; j++)
 			{
+				if (opentrap == true)
+				{
+					if (line[j] == 'x' || line[j] == 'X')
+					{
+						line[j] = ' ';
+					}
+				}
 				createwall[i][j] = line[j];
 			}
 			i++;
@@ -187,7 +205,66 @@ char scanMap1E(char createwall[20][70])
 	}
 	return createwall[20][70];
 }
-int exitedtimes = 0;
+char scanMap1D(char createwall[20][70])
+{
+	string line;
+	ifstream myfile("MAZE1D.txt");
+	int i = 0;
+	int pos = 0;
+	if (myfile.is_open())
+	{
+		while (getline(myfile, line))
+		{
+			for (int j = 0; j < 70; j++)
+			{
+				createwall[i][j] = line[j];
+			}
+			i++;
+		}
+		myfile.close();
+	}
+	return createwall[20][70];
+}
+char scanMap2(char createwall[20][70])
+{
+	string line;
+	ifstream myfile("MAZE2.txt");
+	int i = 0;
+	int pos = 0;
+	if (myfile.is_open())
+	{
+		while (getline(myfile, line))
+		{
+			for (int j = 0; j < 70; j++)
+			{
+				createwall[i][j] = line[j];
+			}
+			i++;
+		}
+		myfile.close();
+	}
+	return createwall[20][70];
+}
+char scanMap3(char createwall[20][70])
+{
+	string line;
+	ifstream myfile("MAZE3.txt");
+	int i = 0;
+	int pos = 0;
+	if (myfile.is_open())
+	{
+		while (getline(myfile, line))
+		{
+			for (int j = 0; j < 70; j++)
+			{
+				createwall[i][j] = line[j];
+			}
+			i++;
+		}
+		myfile.close();
+	}
+	return createwall[20][70];
+}
 void moveCharacter()
 {
     bool bSomethingHappened = false;
@@ -195,96 +272,277 @@ void moveCharacter()
         return;
 	char createwall[20][70];
 
-	if (exitedtimes == 0)
+	if (puzzlelevel == 0)
 	{
-		scanMap1(createwall);
+		if (eventactivate == true)
+		{
+			if (clearevent1 == true)
+			{
+				scanMap1D(createwall);
+			}
+			else
+			{
+				scanMap1E(createwall);
+			}
+		}
+		else
+		{
+			scanMap1(createwall);
+		}
 	}
-	else
+	else if(puzzlelevel == 1)
 	{
-		scanMap1E(createwall);
+		scanMap2(createwall);
+	}
+	else if (puzzlelevel == 2)
+	{
+		scanMap3(createwall);
 	}
     // Updating the location of the character based on the key press
     // providing a beep sound whenver we shift the character
-    if (g_abKeyPressed[K_UP] && g_sChar.m_cLocation.Y > 2)
-    {
-        //Beep(1440, 30);
-		int characterlocationY = g_sChar.m_cLocation.Y-1;
+	if (g_abKeyPressed[K_UP] && g_sChar.m_cLocation.Y > 2)
+	{
+		//Beep(1440, 30);
+		int characterlocationY = g_sChar.m_cLocation.Y - 1;
 		int characterlocationX = g_sChar.m_cLocation.X;
 		characterlocationY -= 1;
-		if ((createwall[characterlocationY][characterlocationX] == ' ') || (createwall[characterlocationY][characterlocationX] == '2'))
+		if (createwall[characterlocationY][characterlocationX] == ' ' || createwall[characterlocationY][characterlocationX] == '2' ||
+			createwall[characterlocationY][characterlocationX] == 'E' || createwall[characterlocationY][characterlocationX] == '3' ||
+			createwall[characterlocationY][characterlocationX] == 'T' || createwall[characterlocationY][characterlocationX] == 'X' ||
+			createwall[characterlocationY][characterlocationX] == 'S' || createwall[characterlocationY][characterlocationX] == 's')
 		{
-				g_sChar.m_cLocation.Y--;
-				bSomethingHappened = true;
-				if (createwall[characterlocationY][characterlocationX] == '2')
-				{
-					g_sChar.m_cLocation.X = 4;
-					g_sChar.m_cLocation.Y = 2;
-					exitedtimes++;
-					renderGame();
-				}
+			g_sChar.m_cLocation.Y--;
+			bSomethingHappened = true;
+			if (createwall[characterlocationY][characterlocationX] == '2')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			if (createwall[characterlocationY][characterlocationX] == '3')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'E')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				eventactivate = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'T')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'X')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 13;
+				opentrap = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 's')
+			{
+				g_sChar.m_cLocation.X = 1;
+				g_sChar.m_cLocation.Y = 14;
+			}
+			else if (characterlocationY == 13 && characterlocationX == 69 && opentrap == true)
+			{
+				g_sChar.m_cLocation.X = 33;
+				g_sChar.m_cLocation.Y = 2;
+				clearevent1 = true;
+				renderGame();
+			}
 		}
-    }
+	}
 
-    if (g_abKeyPressed[K_LEFT] && g_sChar.m_cLocation.X > 0)
-    {
-        //Beep(1440, 30);
+	if (g_abKeyPressed[K_LEFT] && g_sChar.m_cLocation.X > 0)
+	{
+		//Beep(1440, 30);
 
-		int characterlocationY = g_sChar.m_cLocation.Y-1;
+		int characterlocationY = g_sChar.m_cLocation.Y - 1;
 		int characterlocationX = g_sChar.m_cLocation.X;
 		characterlocationX -= 1;
-		if ((createwall[characterlocationY][characterlocationX] == ' ')||(createwall[characterlocationY][characterlocationX] == '2'))
+		if (createwall[characterlocationY][characterlocationX] == ' ' || createwall[characterlocationY][characterlocationX] == '2' ||
+			createwall[characterlocationY][characterlocationX] == 'E' || createwall[characterlocationY][characterlocationX] == '3' ||
+			createwall[characterlocationY][characterlocationX] == 'T' || createwall[characterlocationY][characterlocationX] == 'X' ||
+			createwall[characterlocationY][characterlocationX] == 'S' || createwall[characterlocationY][characterlocationX] == 's')
 		{
-				g_sChar.m_cLocation.X--;
-				bSomethingHappened = true;
-				if (createwall[characterlocationY][characterlocationX] == '2')
-				{
-					g_sChar.m_cLocation.X = 4;
-					g_sChar.m_cLocation.Y = 2;
-					exitedtimes++;
-					renderGame();
-				}
+			g_sChar.m_cLocation.X--;
+			bSomethingHappened = true;
+			if (createwall[characterlocationY][characterlocationX] == '2')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			if (createwall[characterlocationY][characterlocationX] == '3')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'E')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				eventactivate = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'T')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'X')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+				opentrap = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 's')
+			{
+				g_sChar.m_cLocation.X = 1;
+				g_sChar.m_cLocation.Y = 14;
+			}
+			else if (characterlocationY == 13 && characterlocationX == 69 && opentrap == true)
+			{
+				g_sChar.m_cLocation.X = 33;
+				g_sChar.m_cLocation.Y = 2;
+				clearevent1 = true;
+				renderGame();
+			}
 		}
-    }
+	}
     if (g_abKeyPressed[K_DOWN] && g_sChar.m_cLocation.Y < 19)
     {
         //Beep(1440, 30);
 		int characterlocationY = g_sChar.m_cLocation.Y-1;
 		int characterlocationX = g_sChar.m_cLocation.X;
 		characterlocationY += 1;
-		if ((createwall[characterlocationY][characterlocationX] == ' ') || (createwall[characterlocationY][characterlocationX] == '2'))
+		if (createwall[characterlocationY][characterlocationX] == ' ' || createwall[characterlocationY][characterlocationX] == '2' ||
+			createwall[characterlocationY][characterlocationX] == 'E' || createwall[characterlocationY][characterlocationX] == '3' ||
+			createwall[characterlocationY][characterlocationX] == 'T' || createwall[characterlocationY][characterlocationX] == 'X' ||
+			createwall[characterlocationY][characterlocationX] == 'S' || createwall[characterlocationY][characterlocationX] == 's')
 		{
 			g_sChar.m_cLocation.Y++;
 			bSomethingHappened = true;
 			if (createwall[characterlocationY][characterlocationX] == '2')
 			{
-				g_sChar.m_cLocation.X = 4;
+				g_sChar.m_cLocation.X = 0;
 				g_sChar.m_cLocation.Y = 2;
-				exitedtimes++;
+				puzzlelevel++;
+				renderGame();
+			}
+			if (createwall[characterlocationY][characterlocationX] == '3')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'E')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				eventactivate = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'T')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'X')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+				opentrap = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 's')
+			{
+				g_sChar.m_cLocation.X = 1;
+				g_sChar.m_cLocation.Y = 14;
+			}
+			else if (characterlocationY == 13 && characterlocationX == 69 && opentrap == true)
+			{
+				g_sChar.m_cLocation.X = 33;
+				g_sChar.m_cLocation.Y = 2;
+				clearevent1 = true;
 				renderGame();
 			}
 		}
 
     }
-    if (g_abKeyPressed[K_RIGHT] && g_sChar.m_cLocation.X < 69)
-    {
-        //Beep(1440, 30);
-		int characterlocationY = g_sChar.m_cLocation.Y-1;
+	if (g_abKeyPressed[K_RIGHT] && g_sChar.m_cLocation.X < 69)
+	{
+		//Beep(1440, 30);
+		int characterlocationY = g_sChar.m_cLocation.Y - 1;
 		int characterlocationX = g_sChar.m_cLocation.X;
 		characterlocationX += 1;
-		if ((createwall[characterlocationY][characterlocationX] == ' ') || (createwall[characterlocationY][characterlocationX] == '2'))
+		if (createwall[characterlocationY][characterlocationX] == ' ' || createwall[characterlocationY][characterlocationX] == '2' ||
+			createwall[characterlocationY][characterlocationX] == 'E' || createwall[characterlocationY][characterlocationX] == '3' ||
+			createwall[characterlocationY][characterlocationX] == 'T' || createwall[characterlocationY][characterlocationX] == 'X' ||
+			createwall[characterlocationY][characterlocationX] == 'S' || createwall[characterlocationY][characterlocationX] == 's')
 		{
-				g_sChar.m_cLocation.X++;
-				bSomethingHappened = true;
-				if (createwall[characterlocationY][characterlocationX] == '2')
-				{
-					g_sChar.m_cLocation.X = 4;
-					g_sChar.m_cLocation.Y = 2;
-					exitedtimes++;
-					renderGame();
-				}
-			
+			g_sChar.m_cLocation.X++;
+			bSomethingHappened = true;
+			if (createwall[characterlocationY][characterlocationX] == '2')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			if (createwall[characterlocationY][characterlocationX] == '3')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				puzzlelevel++;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'E')
+			{
+				g_sChar.m_cLocation.X = 0;
+				g_sChar.m_cLocation.Y = 2;
+				eventactivate = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'T')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 'X')
+			{
+				g_sChar.m_cLocation.X = 60;
+				g_sChar.m_cLocation.Y = 12;
+				opentrap = true;
+				renderGame();
+			}
+			else if (createwall[characterlocationY][characterlocationX] == 's')
+			{
+				g_sChar.m_cLocation.X = 1;
+				g_sChar.m_cLocation.Y = 14;
+			}
+			else if (g_sChar.m_cLocation.Y == 13 && g_sChar.m_cLocation.X == 69 && opentrap == true)
+			{
+				g_sChar.m_cLocation.X = 33;
+				g_sChar.m_cLocation.Y = 2;
+				clearevent1 = true;
+				renderGame();
+			}
 		}
-    }
+	}
     if (g_abKeyPressed[K_SPACE])
     {
         g_sChar.m_bActive = !g_sChar.m_bActive;
@@ -296,6 +554,7 @@ void moveCharacter()
         // set the bounce time to some time in the future to prevent accidental triggers
         g_dBounceTime = g_dElapsedTime + 0.125; // 125ms should be enough
     }
+	
 }
 void processUserInput()
 {
@@ -326,26 +585,328 @@ void renderSplashScreen()  // renders the splash screen
 
 void renderGame()
 {
-	if (exitedtimes == 0)
+	if (opentrap == true && clearevent1 == false)
 	{
-		renderMap();
+		renderMapOpenTrap1();
+	}
+	else if (clearevent1 == true && opentrap == true)
+	{
+		renderMapEventClear1();
 	}
 	else
 	{
-		renderMap1E();
-	}// renders the map to the buffer first
+		renderMap();
+	}
     renderCharacter();  // renders the character into the buffer
 }
 
 void renderMap()
 {
-	maze1();
+	COORD c;
+	char createwall[20][70];
+	string line;
+	int i = 0;
+	int pos = 0;
+	if (puzzlelevel == 0)
+	{
+		if (eventactivate == true)
+		{
+			ifstream myfile("MAZE1E.txt");
 
+			if (myfile.is_open())
+			{
+				while (getline(myfile, line))
+				{
+					for (int j = 0; j < 70; j++)
+					{
+						createwall[i][j] = line[j];
+					}
+					i++;
+				}
+				myfile.close();
+			}
+		}
+		else
+		{
+			ifstream myfile("MAZE1.txt");
+
+			if (myfile.is_open())
+			{
+				while (getline(myfile, line))
+				{
+					for (int j = 0; j < 70; j++)
+					{
+						createwall[i][j] = line[j];
+					}
+					i++;
+				}
+				myfile.close();
+			}
+		}
+	}
+	else if(puzzlelevel == 1)
+	{
+		ifstream myfile("MAZE2.txt");
+
+		if (myfile.is_open())
+		{
+			while (getline(myfile, line))
+			{
+				for (int j = 0; j < 70; j++)
+				{
+					createwall[i][j] = line[j];
+				}
+				i++;
+			}
+			myfile.close();
+		}
+	}
+	else if (puzzlelevel == 2)
+	{
+		ifstream myfile("MAZE3.txt");
+
+		if (myfile.is_open())
+		{
+			while (getline(myfile, line))
+			{
+				for (int j = 0; j < 70; j++)
+				{
+					createwall[i][j] = line[j];
+				}
+				i++;
+			}
+			myfile.close();
+		}
+	}
+	else
+	{
+
+	}
+	for (int k = 0; k < 20; k++)
+	{
+		int position = 0;
+		c.Y = 1 + pos;
+		for (int j = 0; j < 70; j++)
+		{
+			c.X = position;
+			if (createwall[k][j] == ' ' || createwall[k][j] == '2' || createwall[k][j] == 'k' ||
+				createwall[k][j] == 'E' || createwall[k][j] == 'S' || createwall[k][j] == 's' ||
+				createwall[k][j] == 'X' || createwall[k][j] == 'T' || createwall[k][j] == '3' ||
+				createwall[k][j] == 'Y' || createwall[k][j] == 'V' || createwall[k][j] == 'A' ||
+				createwall[k][j] == 'O')
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0x0);
+			}
+			else
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
+			}
+			position++;
+		}
+		pos++;
+	}
 }
-void renderMap1E()
+void renderMapOpenTrap1()
 {
-	maze1E();
+	COORD c;
+	char createwall[20][70];
+	string line;
+	int i = 0;
+	int pos = 0;
+	if (puzzlelevel == 0)
+	{
+		if (eventactivate == true)
+		{
+			ifstream myfile("MAZE1E.txt");
 
+			if (myfile.is_open())
+			{
+				while (getline(myfile, line))
+				{
+					for (int j = 0; j < 70; j++)
+					{
+						if (line[j] == 'x')
+						{
+							line[j] = ' ';
+						}
+						createwall[i][j] = line[j];
+					}
+					i++;
+				}
+				myfile.close();
+			}
+		}
+		for (int k = 0; k < 20; k++)
+		{
+			int position = 0;
+			c.Y = 1 + pos;
+			for (int j = 0; j < 70; j++)
+			{
+				c.X = position;
+				if (createwall[k][j] == ' ' || createwall[k][j] == '2' || createwall[k][j] == 'k' ||
+					createwall[k][j] == 'E' || createwall[k][j] == 'S' || createwall[k][j] == 's' ||
+					createwall[k][j] == 'X' || createwall[k][j] == 'T')
+				{
+					g_Console.writeToBuffer(c, createwall[k][j], 0x0);
+				}
+				else
+				{
+					g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
+				}
+				position++;
+			}
+			pos++;
+		}
+	}
+}
+void renderMapEventClear1() 
+{
+	COORD c;
+	char createwall[20][70];
+	string line;
+	int i = 0;
+	int pos = 0;
+	if (puzzlelevel == 0)
+	{
+		if (eventactivate == true)
+		{
+			ifstream myfile("MAZE1D.txt");
+
+			if (myfile.is_open())
+			{
+				while (getline(myfile, line))
+				{
+					for (int j = 0; j < 70; j++)
+					{
+						createwall[i][j] = line[j];
+					}
+					i++;
+				}
+				myfile.close();
+			}
+		}
+	}
+	for (int k = 0; k < 20; k++)
+	{
+		int position = 0;
+		c.Y = 1 + pos;
+		for (int j = 0; j < 70; j++)
+		{
+			c.X = position;
+			if (createwall[k][j] == ' ' || createwall[k][j] == '2' || createwall[k][j] =='k'||
+				createwall[k][j] == 'E')
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0x0);
+			}
+			else
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
+			}
+			position++;
+		}
+		pos++;
+	}
+}
+void renderMapOpenTrap2()
+{
+	COORD c;
+	char createwall[20][70];
+	string line;
+	int i = 0;
+	int pos = 0;
+	if (puzzlelevel == 0)
+	{
+		if (eventactivate == true)
+		{
+			ifstream myfile("MAZE2E.txt");
+
+			if (myfile.is_open())
+			{
+				while (getline(myfile, line))
+				{
+					for (int j = 0; j < 70; j++)
+					{
+						if (line[j] == 'x')
+						{
+							line[j] = ' ';
+						}
+						createwall[i][j] = line[j];
+					}
+					i++;
+				}
+				myfile.close();
+			}
+		}
+		for (int k = 0; k < 20; k++)
+		{
+			int position = 0;
+			c.Y = 1 + pos;
+			for (int j = 0; j < 70; j++)
+			{
+				c.X = position;
+				if (createwall[k][j] == ' ' || createwall[k][j] == '2' || createwall[k][j] == 'k' ||
+					createwall[k][j] == 'E' || createwall[k][j] == 'S' || createwall[k][j] == 's' ||
+					createwall[k][j] == 'X' || createwall[k][j] == 'T')
+				{
+					g_Console.writeToBuffer(c, createwall[k][j], 0x0);
+				}
+				else
+				{
+					g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
+				}
+				position++;
+			}
+			pos++;
+		}
+	}
+}
+void renderMapEventClear2()
+{
+	COORD c;
+	char createwall[20][70];
+	string line;
+	int i = 0;
+	int pos = 0;
+	if (puzzlelevel == 0)
+	{
+		if (eventactivate == true)
+		{
+			ifstream myfile("MAZE2D.txt");
+
+			if (myfile.is_open())
+			{
+				while (getline(myfile, line))
+				{
+					for (int j = 0; j < 70; j++)
+					{
+						createwall[i][j] = line[j];
+					}
+					i++;
+				}
+				myfile.close();
+			}
+		}
+	}
+	for (int k = 0; k < 20; k++)
+	{
+		int position = 0;
+		c.Y = 1 + pos;
+		for (int j = 0; j < 70; j++)
+		{
+			c.X = position;
+			if (createwall[k][j] == ' ' || createwall[k][j] == '2' || createwall[k][j] == 'k' ||
+				createwall[k][j] == 'E')
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0x0);
+			}
+			else
+			{
+				g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
+			}
+			position++;
+		}
+		pos++;
+	}
 }
 void renderCharacter()
 {
@@ -380,85 +941,4 @@ void renderToScreen()
 {
     // Writes the buffer to the console, hence you will see what you have written
     g_Console.flushBufferToConsole();
-}
-
-void maze1()
-{
-	COORD c;
-	char createwall[20][70];
-	string line;
-	ifstream myfile("MAZE1.txt");
-	int i = 0;
-	int pos = 0;
-	if (myfile.is_open())
-	{
-		while (getline(myfile, line))
-		{
-			for (int j = 0; j < 70; j++)
-			{
-				createwall[i][j] = line[j];
-			}
-			i++;
-		}
-		myfile.close();
-	}
-	for (int k = 0; k < 20; k++)
-	{
-		int position = 0;
-		c.Y = 1 + pos;
-		for (int j = 0; j < 70; j++)
-		{
-			c.X = position;
-			if (createwall[k][j] == ' '|| createwall[k][j] == '2')
-			{
-				g_Console.writeToBuffer(c, createwall[k][j], 0x0);
-			}
-			else
-			{
-				g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
-			}
-			position++;
-		}
-		pos++;
-	}
-}
-void maze1E()
-{
-	COORD c;
-	char createwall[20][70];
-	string line;
-	ifstream myfile("MAZE1E.txt");
-	int i = 0;
-	int pos = 0;
-	if (myfile.is_open())
-	{
-		while (getline(myfile, line))
-		{
-			for (int j = 0; j < 70; j++)
-			{
-				createwall[i][j] = line[j];
-			}
-			i++;
-		}
-		myfile.close();
-	}
-	for (int k = 0; k < 20; k++)
-	{
-		int position = 0;
-		c.Y = 1 + pos;
-		for (int j = 0; j < 70; j++)
-		{
-			c.X = position;
-			if (createwall[k][j] == ' ' || createwall[k][j] == '2')
-			{
-				g_Console.writeToBuffer(c, createwall[k][j], 0x0);
-			}
-			else
-			{
-				g_Console.writeToBuffer(c, createwall[k][j], 0xFFF);
-			}
-			position++;
-		}
-		pos++;
-	}
 }
