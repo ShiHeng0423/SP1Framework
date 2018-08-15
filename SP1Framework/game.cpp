@@ -93,7 +93,7 @@ void getInput( void )
     g_abKeyPressed[K_RIGHT]  = isKeyPressed(VK_RIGHT);
     g_abKeyPressed[K_SPACE]  = isKeyPressed(VK_SPACE);
     g_abKeyPressed[K_ESCAPE] = isKeyPressed(VK_ESCAPE);
-	g_abKeyPressed[K_SPECIAL] = isKeyPressed(VK_KEY_B);
+	g_abKeyPressed[K_JUMP] = isKeyPressed(VK_KEY_J);
 }
 
 //--------------------------------------------------------------
@@ -548,7 +548,11 @@ void moveCharacter()
         g_sChar.m_bActive = !g_sChar.m_bActive;
         bSomethingHappened = true;
     }
-
+	if (g_abKeyPressed[K_JUMP])
+	{
+		g_sChar.m_cLocation.X = 33;
+		g_sChar.m_cLocation.Y = 2;
+	}
     if (bSomethingHappened)
     {
         // set the bounce time to some time in the future to prevent accidental triggers
