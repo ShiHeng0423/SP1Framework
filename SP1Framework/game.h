@@ -54,6 +54,7 @@ enum EKEYS
 	K_ESCAPE,
 	K_SPACE,
 	K_JUMP,
+	//everything above count
 	K_COUNT,
 };
 
