@@ -2,6 +2,7 @@
 
 #include "Framework\timer.h"
 #include "game.h"
+#include "MusicManager.h"
 
 CStopWatch g_Timer;                            // Timer function to keep track of time and the frame rate
 bool g_bQuitGame = false;                    // Set to true if you want to quit the game
@@ -18,6 +19,9 @@ void mainLoop( void );
 // You should not be modifying this unless you know what you are doing
 int main( void )
 {
+
+	MusicInit();
+	MusicPlay("alias", "repeat");
     init();      // initialize your variables
     mainLoop();  // main loop
     shutdown();  // do clean up, if any. free memory.
@@ -36,7 +40,7 @@ void mainLoop( void )
 {
     g_Timer.startTimer();    // Start timer to calculate how long it takes to render this frame
     while (!g_bQuitGame)      // run this loop until user wants to quit 
-    {        
+    { 
         getInput();                         // get keyboard input
         update(g_Timer.getElapsedTime());   // update the game
         render();                           // render the graphics output to screen
