@@ -60,5 +60,8 @@
     <Media Include="Wii Music - Gaming Background Music (HD).mp3">
       <Filter>Resource Files</Filter>
     </Media>
+    <Media Include="Raining Tacos - Parry Gripp  BooneBum.mp3">
+      <Filter>Resource Files</Filter>
+    </Media>
   </ItemGroup>
 </Project>

@@ -22,6 +22,7 @@ int main( void )
 
 	MusicInit();
 	MusicPlay("alias", "repeat");
+	MusicPlay("tacos", "repeat");
     init();      // initialize your variables
     mainLoop();  // main loop
     shutdown();  // do clean up, if any. free memory.

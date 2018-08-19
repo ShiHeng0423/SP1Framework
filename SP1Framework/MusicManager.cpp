@@ -14,6 +14,7 @@ void MusicInit()
 	// mpegvideo is Audio for MP3 (*.mp3) [VOLUME WILL NOT WORK IS WAVEAUDIO IS USED (*.wav)!!]
 	// volume is a string eg "0" - "100"
 	// &loaded is a MLoaded Struct.
+	MusicLoad("Raining Tacos - Parry Gripp  BooneBum.mp3", "mpegvideo", "tacos", "100", &loaded);
 	MusicLoad("Wii Music - Gaming Background Music (HD).mp3", "mpegvideo", "alias", "100", &loaded);
 	LoadedFiles.push_back(loaded);
 }

@@ -94,6 +94,7 @@
     <Text Include="MAZE1.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Media Include="Raining Tacos - Parry Gripp  BooneBum.mp3" />
     <Media Include="Wii Music - Gaming Background Music (HD).mp3" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
